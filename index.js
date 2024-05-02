@@ -45,13 +45,29 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const options = {
         // Include only the `title` and `imdb` fields in the returned document
-        projection: { title: 1, service_id: 1, price: 1 },
+        projection: { title: 1, service_id: 1, price: 1, img: 1 },
       };
       const result = await servicesCollection.findOne(query, options);
       res.send(result);
     });
 
-    // insert a service order document
+    // get booking user wise
+
+    app.get("/bookings", async (req, res) => {
+      // query একটা plain object.
+      // query request পাঠানো System হলো https://localhost:5000/bookings?email=shahin@gmail.com&sort=1
+      // (?) question mark দিয়ে query শুরু করতে হয়।
+
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await bookingCollection.find(query).toArray();
+
+      res.send(result);
+    });
+
+    // insert a service booking document
 
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
