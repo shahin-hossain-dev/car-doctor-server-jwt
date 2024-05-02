@@ -54,9 +54,10 @@ async function run() {
     // insert a service order document
 
     app.post("/bookings", async (req, res) => {
-      const order = req.body;
-      const result = await bookingCollection.insertOne(order);
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
       res.send(result);
+      // console.log(booking);
     });
 
     // Send a ping to confirm a successful connection
