@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -15,6 +16,22 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
+
+const verifyToken = (req, res, next) => {
+  const token = req?.cookies?.token;
+  if (!token) {
+    return res.status(401).send("unauthorized access");
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send("unauthorized access");
+    }
+    req.user = decoded;
+    // console.log(decoded);
+    next();
+  });
+};
 
 // mongoDB
 const user = process.env.DB_USER;
@@ -30,6 +47,13 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+// my middlewares
+
+const logger = (req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+};
 
 async function run() {
   try {
@@ -76,10 +100,13 @@ async function run() {
 
     // get booking user wise
 
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", logger, verifyToken, async (req, res) => {
       // query একটা plain object.
       // query request পাঠানো System হলো https://localhost:5000/bookings?email=shahin@gmail.com&sort=1
       // (?) question mark দিয়ে query শুরু করতে হয়।
+
+      // console.log("token", req.cookies.token);
+      // console.log("user", req.user.email);
 
       let query = {};
       if (req.query?.email) {

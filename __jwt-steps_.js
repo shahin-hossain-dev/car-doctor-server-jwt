@@ -49,3 +49,11 @@
           });
       }
  */
+
+/**
+ * for secure api calls
+ * install cookie parser
+ * set as a middle cookie parser
+ * on the client side: make api call using axios {withCredentials:true} or (using  {credentials:'include'} while using fetch)
+ * middleware করার সময় অনেকে MVC pattern follow করে এবং আলাদা করে রাখে।
+ */
