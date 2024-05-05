@@ -20,13 +20,16 @@ app.use(cookieParser());
 
 const verifyToken = (req, res, next) => {
   const token = req?.cookies?.token;
+  // no token available
   if (!token) {
-    return res.status(401).send("unauthorized access");
+    return res.status(401).send({ message: "unauthorized access" });
   }
+  // verify token
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).send("unauthorized access");
+      return res.status(401).send({ message: "unauthorized access" });
     }
+    //decoded token er encrypted data থেকে মূল information গুলোকে return করে।
     req.user = decoded;
     // console.log(decoded);
     next();
@@ -106,7 +109,10 @@ async function run() {
       // (?) question mark দিয়ে query শুরু করতে হয়।
 
       // console.log("token", req.cookies.token);
-      // console.log("user", req.user.email);
+      console.log("user info", req.user.email);
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
 
       let query = {};
       if (req.query?.email) {
