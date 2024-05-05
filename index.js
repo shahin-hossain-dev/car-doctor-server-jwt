@@ -47,7 +47,13 @@ async function run() {
       });
       res
         .cookie("token", token, { httpOnly: true, secure: false })
-        .send({ confirm: true });
+        .send({ success: true });
+    });
+    // clean up browser cookie when user logged out
+    app.post("/logout", (req, res) => {
+      const user = req.body;
+      console.log("loggedOut User", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     // get services data

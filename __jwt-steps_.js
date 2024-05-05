@@ -17,7 +17,35 @@
  * 3. client site axios install
  * 4. post request for set cookies,
  * 5. onauthStateChange থেকে user থাকলে post req করবে, axios.post('https//localhost:5000/jwt', {user}, {withCredentials: true})
+ * server ->
  * 6. set cors origin & credentials: true
  * 7. jwt এর post method করে রিসিভ করতে হবে।
+ * app.post('/jwt', (req,res)=> {const user = req.body; const token = ?; res.cookies(name, token, option)})
  * 8. jsonwebtoken require করতে হবে।
+ * 9. token create করতে হবে। j
+ * 10. create token: cmd: node -> require('crypto').randomBytes(64).toString('hex')
+ * 11. const token = jwt.sign(user, process.env.SECRET_KEY, {expireIn: '1h'})
+ * 12. res.cookie('token', token, {httpOnly: true, secure: false, sameSite: false})
+ *
+ * //clear cookie with logout --->
+ * 
+ * //server
+ * // clean up browser cookie when user logged out
+    app.post("/logout", (req, res) => {
+      const user = req.body;
+      console.log("loggedOut User", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    });
+ *
+    //client
+    else {
+        // user logout করার পরে cookie কে browser থেকে clean করার জন্য post request করা হচ্ছে
+        axios
+          .post("http://localhost:5000/logout", loggedUser, {
+            withCredentials: true,
+          })
+          .then((res) => {
+            console.log(res.data);
+          });
+      }
  */
