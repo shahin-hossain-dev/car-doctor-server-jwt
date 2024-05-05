@@ -109,7 +109,7 @@ async function run() {
       // (?) question mark দিয়ে query শুরু করতে হয়।
 
       // console.log("token", req.cookies.token);
-      console.log("user info", req.user.email);
+      // console.log("user info", req.user.email);
       if (req.query.email !== req.user.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
