@@ -11,7 +11,11 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"], //production এর সময় চেন্জ করে দিতে হবে।
+    origin: [
+      "http://localhost:5173",
+      "https://cars-doctor-67f60.web.app",
+      "https://cars-doctor-67f60.firebaseapp.com",
+    ], //production এর সময় চেন্জ করে দিতে হবে।
     credentials: true,
   })
 );
@@ -21,6 +25,7 @@ app.use(cookieParser());
 const verifyToken = (req, res, next) => {
   const token = req?.cookies?.token;
   // no token available
+
   if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -54,32 +59,39 @@ const client = new MongoClient(uri, {
 // my middlewares
 
 const logger = (req, res, next) => {
-  console.log(req.method, req.url);
+  // console.log(req.method, req.url);
   next();
 };
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect(); //vercel deploy এ comment করে রাখতে হবে।
 
     const servicesCollection = client.db("carDoctorDB").collection("services");
     const bookingCollection = client.db("carDoctorDB").collection("bookings");
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      console.log(user);
+      // console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1h",
       });
       res
-        .cookie("token", token, { httpOnly: true, secure: false })
+        .cookie("token", token, {
+          httpOnly: true,
+          // secure: false,
+          // sameSite: false
+          // secure & sameSite for deployment
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
         .send({ success: true });
     });
     // clean up browser cookie when user logged out
     app.post("/logout", (req, res) => {
       const user = req.body;
-      console.log("loggedOut User", user);
+      // console.log("loggedOut User", user);
       res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
@@ -156,7 +168,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });  //vercel deploy এ comment করে রাখতে হবে।
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );

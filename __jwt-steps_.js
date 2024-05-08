@@ -41,7 +41,7 @@
     else {
         // user logout করার পরে cookie কে browser থেকে clean করার জন্য post request করা হচ্ছে
         axios
-          .post("http://localhost:5000/logout", loggedUser, {
+          .post("https://car-doctor-server-jwt-eight.vercel.app/logout", loggedUser, {
             withCredentials: true,
           })
           .then((res) => {
