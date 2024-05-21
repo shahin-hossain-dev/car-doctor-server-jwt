@@ -97,7 +97,19 @@ async function run() {
 
     // get services data
     app.get("/services", async (req, res) => {
-      const cursor = await servicesCollection.find().toArray();
+      const filter = req.query;
+
+      const query = {
+        price: { $lt: 200, $gt: 20 },
+        // title: { $regex: filter.search, $options: "i" },
+        // $options: "i" হলো case ignore করার জন্য ব্যবহার করা হয়েছে।
+        title: { $regex: filter.search, $options: "i" },
+      };
+      const option = {
+        $sort: { price: filter.sort === "asc" ? 1 : -1 },
+      };
+
+      const cursor = await servicesCollection.find(query, option).toArray();
       res.send(cursor);
     });
 
